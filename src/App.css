@@ -1,3 +1,14 @@
+.login-pages {
+  background-image: url(assets/background.jpg);
+  background-attachment: fixed;
+  background-size: cover;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .App {
   text-align: center;
 }
@@ -36,3 +47,129 @@
     transform: rotate(360deg);
   }
 }
+
+.header-card{
+  margin-top: 16px;
+  width: 100%;
+  font-size: larger;
+  color: black;
+  margin-left: 24px;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  font-family: "Poppins Medium";
+}
+
+.header-card img{
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+}
+
+.custom-button{
+  background-color: #19191b;
+  border: none;
+  padding: 8px;
+  outline: none;
+  width: 50%;
+  color: white;
+  margin-top: 16px;
+  border-radius: 10px;
+}
+
+.container-button{
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.disable-button{
+  background-color: #cccccc;
+  border: none;
+  padding: 8px;
+  width: 50%;
+  outline: none;
+  margin-top: 16px;
+  color: white;
+  border-radius: 10px;
+}
+
+.login-form{
+  display: flex;
+  justify-content: flex-end;
+  margin: 150px;
+}
+
+.card-style{
+  width: 21rem;
+  background: white;
+}
+
+.container-form{
+  display: flex;
+  justify-content: center;
+  margin: 16px;
+}
+
+.image-home{
+  width: 500px;
+  height: 500px;
+  padding: 24px;
+  margin: 50px;
+}
+
+.container-text{
+  display: flex;
+  justify-content: flex-end;
+  width: 400px;
+  margin-top: 150px;
+}
+
+.container-list{
+  margin-top: 16px;
+}
+
+.loading-component{
+  display: block;
+  margin-left: auto;
+  margin-right: auto
+}
+
+.container-action{
+  margin-top: 16px;
+  display: flex;
+  width: fit-content;
+  flex-direction: column;
+}
+
+.container-pagination{
+  display: flex;
+  justify-content: center;
+  align-self: flex-end;
+}
+
+.container-table{
+  padding: 16px;
+  flex-direction: row;
+  margin-top: 16px;
+}
+
+.container-label{
+  display: flex;
+  width: fit-content;
+  font-size: 22px;
+  padding: 8px;
+}
+
+.container-home{
+  display: flex;
+  flex-direction: row;
+  height: fit-content;
+}
+.container-text{
+  display: flex;
+  justify-content: flex-end;
+  width: 400px;
+  margin-top: 150px;
+}
+
