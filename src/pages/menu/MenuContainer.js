@@ -7,6 +7,9 @@ import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {connect} from "react-redux";
+import Swal from "sweetalert2";
+import {showAlert} from "../../component/AlertComponent";
+import {withRouter} from "react-router-dom";
 
 class MenuContainer extends Component {
     constructor(props) {
@@ -39,7 +42,16 @@ class MenuContainer extends Component {
             })
             this.props.set(result.data)
         }).catch((err)=>{
-            console.log(err)
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Session End!',
+            }).then((result)=>{
+                if (result.value) {
+                    sessionStorage.clear()
+                    this.props.history.push('/')
+                }
+            })
         })
     }
 
@@ -58,48 +70,76 @@ class MenuContainer extends Component {
     createData = (menu)=>{
         postMenu(menu,this.state.token).then((response)=>{
             if (response.status===201){
-                alert("Create Success")
-                this.loadData()
+                showAlert('success','Successfull Insert Menu')
                 this.setState({
                     ...this.state,
                     editedData : {},
                     showDetail : !this.state.showDetail,
                     totalData : this.state.totalData + 1
                 })
+                this.loadData()
             }
         }).catch((error)=>{
-            console.log(error)
+            showAlert('error','Error Insert data')
+            this.setState({
+                ...this.state,
+                showDetail : !this.state.showDetail
+            })
         })
     }
 
     updateData = (menuId,menu)=>{
-        updateMenu(menuId,menu).then((response)=>{
+        updateMenu(menuId,menu,this.state.token).then((response)=>{
             if (response.status === 200){
-                this.loadData()
+                showAlert('success','Successfull Update Menu')
                 this.setState({
                     ...this.state,
                     editedData : {},
                     showDetail : !this.state.showDetail
                 })
-                alert("Update Success")
             }
+            this.loadData()
         }).catch((error)=>{
-            console.log(error)
+            showAlert('error','Error Edited data')
+            this.setState({
+                ...this.state,
+                showDetail : !this.state.showDetail
+            })
         })
     }
 
     deleteData = (idMenu)=>{
-        deleteMenu(idMenu,this.state.token).then((response)=>{
-            if (response.status === 200){
-                alert("Delete Success")
-                this.loadData()
-                this.setState({
-                    ...this.state,
-                    totalData : this.state.totalData - 1
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                deleteMenu(idMenu,this.state.token).then((response)=>{
+                    if (response.status === 200){
+                        Swal.fire(
+                            'Deleted!',
+                            'Your file has been deleted.',
+                            'success'
+                        )
+                        this.loadData()
+                        this.setState({
+                            ...this.state,
+                            totalData : this.state.totalData - 1
+                        })
+                    }
+                }).catch((error)=>{
+                    Swal.fire(
+                        'Error!',
+                        'Error Deleted File',
+                        'error'
+                    )
                 })
             }
-        }).catch((error)=>{
-            console.log(error)
         })
     }
 
@@ -137,7 +177,6 @@ class MenuContainer extends Component {
                 offsetTemp = page;
             }
         }
-        console.log(offsetTemp)
         return offsetTemp
     }
 
@@ -212,11 +251,6 @@ class MenuContainer extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return{
-        menu : state.menu,
-    }
-}
 
 const mapDispatchToProps = (dispatch) =>{
     return {
@@ -229,4 +263,4 @@ const mapDispatchToProps = (dispatch) =>{
     }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(MenuContainer);
+export default connect(null,mapDispatchToProps)(withRouter(MenuContainer));

@@ -1,15 +1,13 @@
-import React, {Component} from 'react';
-import loading from '../assets/loading.gif'
-import {Container} from "react-bootstrap";
+import Swal from "sweetalert2";
 
-class LodingComponent extends Component {
-    render() {
-        return (
-            <Container className="loading-component">
-                <img src={loading} alt="loading..." />
-            </Container>
-        );
-    }
+export const  LoadingComponent = ()=>{
+    Swal.fire({
+        title: 'Loading!',
+        timerProgressBar: true,
+    }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+        }
+    })
 }
 
-export default LodingComponent;

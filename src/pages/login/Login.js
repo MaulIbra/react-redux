@@ -5,7 +5,6 @@ class Login extends Component {
 
     onLogin = ()=>{
         this.props.onLogin()
-
     }
 
     render() {

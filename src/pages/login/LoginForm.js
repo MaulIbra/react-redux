@@ -5,6 +5,8 @@ import ButtonComponent from "../../component/ButtonComponent";
 import '../../App.css';
 import loginIcon from "../../assets/login.svg"
 import {login} from "./LoginService";
+import {LoadingComponent} from "../../component/LodingComponent";
+import Swal from "sweetalert2";
 
 class LoginForm extends Component {
 
@@ -37,14 +39,17 @@ class LoginForm extends Component {
             username : this.state.email,
             password: this.state.password
         }
+        LoadingComponent()
+        Swal.showLoading()
         login(user).then((result)=>{
             if (result.data.data === undefined){
+                Swal.close()
                 this.setState({
                     ...this.state,
                     error : result.data.message
                 })
             }else{
-                console.log(result)
+                Swal.close()
                 this.setState({
                     ...this.state,
                     error : ""
@@ -53,6 +58,7 @@ class LoginForm extends Component {
                 this.props.onLogin()
             }
         }).catch((err)=>{
+            Swal.close()
             console.log(err)
 
         })
@@ -83,9 +89,11 @@ class LoginForm extends Component {
                             inputPlaceholder={"Enter password"}
                             onChange={this.handleChangeInput}
                         />
-                        <small className="text-danger">{this.state.error === ""?"":this.state.error}</small>
+                        <div className="container-error">
+                            <small className="text-danger">{this.state.error === ""?"":this.state.error}</small>
+                        </div>
                         <div className="container-button">
-                        <ButtonComponent btnLabel={"Login"} validation={this.validationForm()} click={this.handleLogin}/>
+                            <ButtonComponent btnLabel={"Login"} validation={this.validationForm()} click={this.handleLogin}/>
                         </div>
                     </Form>
                 </Card.Body>
