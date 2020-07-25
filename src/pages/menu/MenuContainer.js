@@ -212,10 +212,10 @@ class MenuContainer extends Component {
         }
         return (
             <Container>
-                <div className="container-label border-bottom">
-                    Menu
-                </div>
-                <div className="table-bordered container-table">
+                {/*<div className="container-label border-bottom">*/}
+                {/*    Menu*/}
+                {/*</div>*/}
+                <div className="table-bordered container-table mt-5">
                     <MenuForm
                         formType={this.state.formType}
                         editedData={this.state.editedData}

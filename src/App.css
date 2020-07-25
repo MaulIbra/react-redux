@@ -177,3 +177,19 @@
   margin-bottom: 12px;
 }
 
+.navigation-text-active {
+  margin: 16px;
+  color: #0275d8;
+  font-weight: 500;
+  font-family: "Poppins Medium";
+  text-decoration: none;
+}
+
+.navigation-text {
+  margin: 16px;
+  color: #292b2c;
+  font-family: Poppins;
+  text-decoration: none;
+}
+
+

@@ -2,7 +2,7 @@ const initialState = {
     menu  : [],
 }
 
-const reducer = (state = initialState, action)=> {
+const menu = (state = initialState, action)=> {
     switch (action.type) {
         case 'SET_MENU' :
             return {...state,menu : action.payload};
@@ -11,4 +11,4 @@ const reducer = (state = initialState, action)=> {
     }
 }
 
-export default reducer
+export default menu

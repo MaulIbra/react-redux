@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-import {Navbar,Nav} from "react-bootstrap";
+import {Navbar,Nav,Container} from "react-bootstrap";
 import logo from '../assets/logo.png'
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
+import {faSignOutAlt} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 class HeaderComponent extends Component {
     handleLogout = ()=>{
@@ -9,28 +11,33 @@ class HeaderComponent extends Component {
     }
 
     render() {
+        console.log(this.props.history)
         return (
+
             <Navbar className="bg-white shadow-sm p-3">
-                <Navbar.Brand>
+                <Container>
+                <Navbar.Brand className="mr-5">
                     <img
                         src={logo}
-                        width="50"
-                        height="50"
+                        width="60"
+                        height="60"
                         alt=""
                         className="d-inline-block p-2"
                     />
                     Maulana
                 </Navbar.Brand>
                 <Nav className="mr-auto">
-                    <Nav.Link><Link to="/home">Home</Link></Nav.Link>
-                    <Nav.Link><Link to="/menu">Menu</Link></Nav.Link>
+                    <Link to="/home" className={this.props.history.location.pathname === '/home' ? "navigation-text-active" : "navigation-text"}>Home</Link>
+                    <Link to="/menu" className={this.props.history.location.pathname === '/menu' ? "navigation-text-active" : "navigation-text"}>Menu</Link>
                 </Nav>
                 <Nav className="justify-content-end">
-                    <Nav.Link onClick={()=>this.handleLogout()}>Logout</Nav.Link>
+                    <label className="navigation-text" onClick={()=>this.handleLogout()}>Logout</label>
+                    <FontAwesomeIcon className="m-auto" icon={faSignOutAlt} />
                 </Nav>
+                </Container>
             </Navbar>
         );
     }
 }
 
-export default HeaderComponent;
+export default withRouter(HeaderComponent);
