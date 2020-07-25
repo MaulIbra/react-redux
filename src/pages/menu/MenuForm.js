@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import InputComponent from "../../component/InputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
+import {connect} from "react-redux";
 
 class MenuForm extends Component {
     constructor(props) {
@@ -77,7 +78,7 @@ class MenuForm extends Component {
     }
 
     render() {
-        const {formType,editedData,show,hide} = this.props
+        const {formType,editedData,show,hide,category} = this.props
         let methodClick,disable
         if (formType === "Edit"){
             disable = false
@@ -95,15 +96,17 @@ class MenuForm extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <Form id="form">
-                        <InputComponent
-                            inputType={"text"}
-                            inputName={"category"}
-                            inputLabel={"Category"}
-                            value ={this.state.category}
-                            disable = {disable}
-                            inputPlaceholder={"Enter Category"}
-                            onChange={this.handleChangeInput}
-                        />
+                        <Form.Group>
+                            <Form.Label>Category</Form.Label>
+                            <Form.Control name="category" as="select" size="md" value={this.state.category} onChange={this.handleChangeInput}>
+                                <option>-- Select Category --</option>
+                                {category.map((val)=>{
+                                    return (<option value={val.categoryId}>{val.categoryName}</option>)
+                                })}
+                            </Form.Control>
+                        </Form.Group>
+
+
                         <InputComponent
                             inputType={"text"}
                             inputName={"menuName"}
@@ -142,4 +145,10 @@ class MenuForm extends Component {
     }
 }
 
-export default MenuForm;
+const getCategory = (state)=>{
+    return{
+        category : state.categoryReducer.categoryTodo.category
+    }
+}
+
+export default connect(getCategory,null)(MenuForm);
