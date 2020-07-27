@@ -98,7 +98,7 @@ class MenuForm extends Component {
                     <Form id="form">
                         <Form.Group>
                             <Form.Label>Category</Form.Label>
-                            <Form.Control name="category" as="select" size="md" value={this.state.category} onChange={this.handleChangeInput}>
+                            <Form.Control disabled={disable} name="category" as="select" size="md" value={this.state.category} onChange={this.handleChangeInput}>
                                 <option>-- Select Category --</option>
                                 {category.map((val)=>{
                                     return (<option value={val.categoryId}>{val.categoryName}</option>)
