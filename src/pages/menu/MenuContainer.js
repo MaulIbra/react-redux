@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import {useEffect, useState} from 'react';
 import {deleteMenu, getCountMenu, getMenu, postMenu, updateMenu} from "./MenuService";
 import MenuList from "./MenuList";
 import MenuForm from "./MenuForm";
@@ -11,36 +11,30 @@ import Swal from "sweetalert2";
 import {showAlert} from "../../component/AlertComponent";
 import {withRouter} from "react-router-dom";
 
-class MenuContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showDetail : false,
-            formType : "",
-            token : "",
-            totalData : 0,
-            offset : 0,
-            rowPerPage : 5,
-            activePage : 0,
-            firstPaging : 0,
-            lastPaging : 0,
-            editedData : {}
-        };
-    }
+import React from 'react';
 
-    componentDidMount() {
-        this.countData()
-        this.loadData()
-    }
+const MenuContainer = (props) => {
 
-    loadData = ()=>{
-        getMenu(this.state.offset,this.state.rowPerPage,sessionStorage.getItem('token')).then((result)=>{
-            this.setState({
-                ...this.state,
-                isVisible : false,
-                token : sessionStorage.getItem('token')
-            })
-            this.props.set(result.data)
+    const [showDetail,setShowDetail] = useState(false)
+    const [formType,setFormType] = useState("")
+    const [token,setToken] = useState("")
+    const [totalData,setTotalData] = useState(0)
+    const [offset,setOffset] = useState(0)
+    const [rowPerPage,setRowPerPage] = useState(5)
+    const [activePage,setActivePage] = useState(0)
+    const [firstPaging,setFirstPaging] = useState(0)
+    const [lastPaging,setLastPaging] = useState(0)
+    const [selectedData,setSelectedData] = useState({})
+
+    useEffect(()=>{
+        countData()
+        loadData()
+    },[offset])
+
+    const loadData = ()=>{
+        getMenu(offset,rowPerPage,sessionStorage.getItem('token')).then((result)=>{
+            setToken(sessionStorage.getItem('token'))
+            props.set(result.data)
         }).catch((err)=>{
             Swal.fire({
                 icon: 'error',
@@ -49,66 +43,51 @@ class MenuContainer extends Component {
             }).then((result)=>{
                 if (result.value) {
                     sessionStorage.clear()
-                    this.props.history.push('/')
+                    props.history.push('/')
                 }
             })
         })
     }
 
-    countData = ()=>{
+    const countData = ()=>{
         getCountMenu(sessionStorage.getItem('token')).then((result)=>{
-            this.setState({
-                ...this.state,
-                totalData : result.data,
-                lastPaging : Math.floor(result.data/this.state.rowPerPage)
-            })
+            setTotalData(result.data)
+            setLastPaging(Math.floor(result.data/rowPerPage))
         }).catch((error)=>{
             console.log(error)
         })
     }
 
-    createData = (menu)=>{
-        postMenu(menu,this.state.token).then((response)=>{
+    const createData = (menu)=>{
+        postMenu(menu,token).then((response)=>{
             if (response.status===201){
                 showAlert('success','Successfull Insert Menu')
-                this.setState({
-                    ...this.state,
-                    editedData : {},
-                    showDetail : !this.state.showDetail,
-                    totalData : this.state.totalData + 1
-                })
-                this.loadData()
+                setSelectedData({})
+                setShowDetail(!showDetail)
+                setTotalData(totalData+1)
+                loadData()
             }
         }).catch((error)=>{
             showAlert('error','Error Insert data')
-            this.setState({
-                ...this.state,
-                showDetail : !this.state.showDetail
-            })
+            setShowDetail(!showDetail)
         })
     }
 
-    updateData = (menuId,menu)=>{
-        updateMenu(menuId,menu,this.state.token).then((response)=>{
+    const updateData = (menuId,menu)=>{
+        updateMenu(menuId,menu,token).then((response)=>{
             if (response.status === 200){
                 showAlert('success','Successfull Update Menu')
-                this.setState({
-                    ...this.state,
-                    editedData : {},
-                    showDetail : !this.state.showDetail
-                })
+                setSelectedData({})
+                setShowDetail(!showDetail)
+                loadData()
             }
-            this.loadData()
         }).catch((error)=>{
             showAlert('error','Error Edited data')
-            this.setState({
-                ...this.state,
-                showDetail : !this.state.showDetail
-            })
+            setShowDetail(!showDetail)
         })
     }
 
-    deleteData = (idMenu)=>{
+    const deleteData = (idMenu)=>{
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -119,18 +98,15 @@ class MenuContainer extends Component {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.value) {
-                deleteMenu(idMenu,this.state.token).then((response)=>{
+                deleteMenu(idMenu,token).then((response)=>{
                     if (response.status === 200){
                         Swal.fire(
                             'Deleted!',
                             'Your file has been deleted.',
                             'success'
                         )
-                        this.loadData()
-                        this.setState({
-                            ...this.state,
-                            totalData : this.state.totalData - 1
-                        })
+                        loadData()
+                        setTotalData(totalData - 1)
                     }
                 }).catch((error)=>{
                     Swal.fire(
@@ -144,35 +120,29 @@ class MenuContainer extends Component {
     }
 
 
-    showModals = (formType,value)=>{
+    const showModals = (formType,value)=>{
         if (formType === "Create"){
             value = {}
         }
-        this.setState({
-            ...this.state,
-            showDetail : !this.state.showDetail,
-            editedData : value,
-            formType : formType
-        })
+        setShowDetail(!showDetail)
+        setSelectedData(value)
+        setFormType(formType)
     }
 
-    hideDetail = ()=>{
-        this.setState({
-            ...this.state,
-            editedData : {},
-            showDetail : !this.state.showDetail
-        })
+    const hideDetail = ()=>{
+        setSelectedData({})
+        setShowDetail(!showDetail)
     }
 
-    minMaxPaging = (page)=>{
+    const minMaxPaging = (page,type)=>{
         let offsetTemp
-        if (page.target !== undefined){
-            offsetTemp = page.target.text - 1
+        if (type){
+            offsetTemp = page - 1;
         }else{
-            if (page < this.state.firstPaging){
-                offsetTemp = this.state.firstPaging
-            }else if (page >= this.state.lastPaging){
-                offsetTemp = this.state.lastPaging
+            if (page < firstPaging){
+                offsetTemp = firstPaging
+            }else if (page >= lastPaging){
+                offsetTemp = lastPaging
             }else{
                 offsetTemp = page;
             }
@@ -180,77 +150,67 @@ class MenuContainer extends Component {
         return offsetTemp
     }
 
-    pageClick = (page)=>{
-        let offsetTemp = this.minMaxPaging(page);
-        this.setState({
-            ...this.state,
-            offset : offsetTemp * this.state.rowPerPage,
-            activePage : Number(offsetTemp)
-        })
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.offset !== this.state.offset){
-            this.loadData()
-        }
+    const pageClick = (page)=>{
+        let offsetTemp = minMaxPaging(page);
+        setOffset(offsetTemp * rowPerPage)
+        setActivePage(Number(offsetTemp))
     }
 
 
-    render() {
-        let pagination= []
-        let counter = this.state.totalData/this.state.rowPerPage
-        if (counter === 0){
-            pagination.push(<Pagination.Item active>{1}</Pagination.Item>)
-        }else{
-            for (let i=0;i<counter;i++){
-                if (i === this.state.activePage){
-                    pagination.push(<Pagination.Item active>{i+1}</Pagination.Item>)
-                }else{
-                    pagination.push(<Pagination.Item onClick={this.pageClick}>{i+1}</Pagination.Item>)
-                }
+    let pagination= []
+    let counter = totalData/rowPerPage
+    if (counter === 0){
+        pagination.push(<Pagination.Item active>{1}</Pagination.Item>)
+    }else{
+        for (let i=0;i<counter;i++){
+            if (i === activePage){
+                pagination.push(<Pagination.Item active>{i+1}</Pagination.Item>)
+            }else{
+                pagination.push(<Pagination.Item onClick={()=>pageClick(i,true)}>{i+1}</Pagination.Item>)
             }
         }
-        return (
-            <Container>
-                {/*<div className="container-label border-bottom">*/}
-                {/*    Menu*/}
-                {/*</div>*/}
-                <div className="table-bordered container-table mt-5">
-                    <MenuForm
-                        formType={this.state.formType}
-                        editedData={this.state.editedData}
-                        create={(menu)=>this.createData(menu)}
-                        update={(menuId,menu)=>this.updateData(menuId,menu)}
-                        show={this.state.showDetail}
-                        hide={this.hideDetail}
-                    />
-                    <div className="container-action">
-                        <Button
-                            variant="outline-primary"
-                            onClick={()=>this.showModals("Create")}>
-                            <FontAwesomeIcon icon={faPlusCircle} className="mr-2"/>Add Menu
-                        </Button>
-                    </div>
-                    <div className="container-list">
-                        <MenuList
-                            edited={(value)=>this.showModals("Edit",value)}
-                            delete={(idMenu)=>this.deleteData(idMenu)}
-                            showDetail = {(value)=>{this.showModals("Detail",value)}}
-                        />
-                    </div>
-                    <div className="container-pagination">
-                        <Pagination>
-                            <Pagination.First onClick={()=>this.pageClick(this.state.activePage-1)}/>
-                            {pagination}
-                            <Pagination.Last onClick={()=>this.pageClick(this.state.activePage+1)}/>
-                        </Pagination>
-                    </div>
-                </div>
-            </Container>
-        );
     }
-}
 
+
+    return (
+        <Container>
+            {/*<div className="container-label border-bottom">*/}
+            {/*    Menu*/}
+            {/*</div>*/}
+            <div className="table-bordered container-table mt-5">
+                <MenuForm
+                    formType={formType}
+                    editedData={selectedData}
+                    create={(menu)=>createData(menu)}
+                    update={(menuId,menu)=>updateData(menuId,menu)}
+                    show={showDetail}
+                    hide={()=>hideDetail()}
+                />
+                <div className="container-action">
+                    <Button
+                        variant="outline-primary"
+                        onClick={()=>showModals("Create")}>
+                        <FontAwesomeIcon icon={faPlusCircle} className="mr-2"/>Add Menu
+                    </Button>
+                </div>
+                <div className="container-list">
+                    <MenuList
+                        edited={(value)=>showModals("Edit",value)}
+                        delete={(idMenu)=>deleteData(idMenu)}
+                        showDetail = {(value)=>showModals("Detail",value)}
+                    />
+                </div>
+                <div className="container-pagination">
+                    <Pagination>
+                        <Pagination.First onClick={()=>pageClick(activePage-1)}/>
+                        {pagination}
+                        <Pagination.Last onClick={()=>pageClick(activePage+1)}/>
+                    </Pagination>
+                </div>
+            </div>
+        </Container>
+    );
+};
 
 const mapDispatchToProps = (dispatch) =>{
     return {
