@@ -2,7 +2,6 @@ import {useEffect, useRef, useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import InputComponent from "../../component/InputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
-import {connect} from "react-redux";
 import React from 'react';
 
 const MenuForm = (props) => {
@@ -122,11 +121,6 @@ const MenuForm = (props) => {
     );
 };
 
-const getCategory = (state)=>{
-    return{
-        category : state.categoryReducer.categoryTodo.category
-    }
-}
 
-export default connect(getCategory,null)(MenuForm);
+export default MenuForm;
 

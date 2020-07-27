@@ -6,15 +6,16 @@ import { Container,Pagination} from "react-bootstrap";
 import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {connect} from "react-redux";
 import Swal from "sweetalert2";
 import {showAlert} from "../../component/AlertComponent";
 import {withRouter} from "react-router-dom";
-
 import React from 'react';
+import {getCategory} from "../category/CategoryService";
 
 const MenuContainer = (props) => {
 
+    const [listMenu,setListMenu] = useState([])
+    const [category,setCategory] = useState([])
     const [showDetail,setShowDetail] = useState(false)
     const [formType,setFormType] = useState("")
     const [token,setToken] = useState("")
@@ -27,6 +28,7 @@ const MenuContainer = (props) => {
     const [selectedData,setSelectedData] = useState({})
 
     useEffect(()=>{
+        loadCategory()
         countData()
         loadData()
     },[offset])
@@ -34,7 +36,24 @@ const MenuContainer = (props) => {
     const loadData = ()=>{
         getMenu(offset,rowPerPage,sessionStorage.getItem('token')).then((result)=>{
             setToken(sessionStorage.getItem('token'))
-            props.set(result.data)
+            setListMenu(result.data)
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
+
+    const countData = ()=>{
+        getCountMenu(sessionStorage.getItem('token')).then((result)=>{
+            setTotalData(result.data)
+            setLastPaging(Math.floor(result.data/rowPerPage))
+        }).catch((error)=>{
+            console.log(error)
+        })
+    }
+
+    const loadCategory = ()=>{
+        getCategory(sessionStorage.getItem('token')).then((result)=>{
+            setCategory(result.data)
         }).catch((err)=>{
             Swal.fire({
                 icon: 'error',
@@ -46,15 +65,6 @@ const MenuContainer = (props) => {
                     props.history.push('/')
                 }
             })
-        })
-    }
-
-    const countData = ()=>{
-        getCountMenu(sessionStorage.getItem('token')).then((result)=>{
-            setTotalData(result.data)
-            setLastPaging(Math.floor(result.data/rowPerPage))
-        }).catch((error)=>{
-            console.log(error)
         })
     }
 
@@ -174,11 +184,12 @@ const MenuContainer = (props) => {
 
     return (
         <Container>
-            {/*<div className="container-label border-bottom">*/}
-            {/*    Menu*/}
-            {/*</div>*/}
-            <div className="table-bordered container-table mt-5">
+            <div className="container-label border-bottom mt-3">
+                List Menu
+            </div>
+            <div className="table-bordered container-table">
                 <MenuForm
+                    category = {category}
                     formType={formType}
                     editedData={selectedData}
                     create={(menu)=>createData(menu)}
@@ -195,8 +206,9 @@ const MenuContainer = (props) => {
                 </div>
                 <div className="container-list">
                     <MenuList
+                        menu = {listMenu}
                         edited={(value)=>showModals("Edit",value)}
-                        delete={(idMenu)=>deleteData(idMenu)}
+                        deleted={(idMenu)=>deleteData(idMenu)}
                         showDetail = {(value)=>showModals("Detail",value)}
                     />
                 </div>
@@ -212,15 +224,5 @@ const MenuContainer = (props) => {
     );
 };
 
-const mapDispatchToProps = (dispatch) =>{
-    return {
-        set : (val) => dispatch(
-            {
-                type : 'SET_MENU',
-                payload : val
-            }
-        )
-    }
-}
 
-export default connect(null,mapDispatchToProps)(withRouter(MenuContainer));
+export default withRouter(MenuContainer);
