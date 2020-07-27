@@ -1,149 +1,126 @@
-import React, {Component} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import InputComponent from "../../component/InputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
 import {connect} from "react-redux";
+import React from 'react';
 
-class MenuForm extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            category : "",
-            menuName : "",
-            stock : 0,
-            price : 0,
-        }
+const MenuForm = (props) => {
+
+    const {formType,editedData,show,hide,category} = props
+    const [categories,setCategory] = useState("")
+    const [menuName,setMenuName] = useState("")
+    const [stock,setStock] = useState(0)
+    const [price,setPrice] = useState(0)
+
+    const validationForm = ()=>{
+        return (categories !== "" && menuName !== "" && stock > 0 && price > 0)
     }
 
-    handleChangeInput = (event) =>{
-        const name = event.target.name
-        this.setState({...this.state, [name] : event.target.value})
+    const reset = ()=>{
+        setCategory("")
+        setMenuName("")
+        setStock(0)
+        setPrice(0)
     }
 
-    validationForm = ()=>{
-        return this.state.category !== "" && this.state.menuName !== "" && this.state.stock > 0 && this.state.price > 0
+    const usePrevious = (value) => {
+        const ref = useRef();
+        useEffect(() => {
+            ref.current = value;
+        });
+        return ref.current;
     }
 
-    reset = () => {
-        this.setState({
-            ...this.state,
-            category : "",
-            menuName : "",
-            stock : "",
-            price : "",
-        })
-    }
-
-    handleCreateMenu = ()=>{
+    const handleSubmit = (formType,id)=>{
         let menu = {
             jenis: {
-                categoryId : this.state.category
+                categoryId : categories
             },
-            menuName: this.state.menuName,
-            stock: Number(this.state.stock),
-            price: Number(this.state.price),
+            menuName: menuName,
+            stock: Number(stock),
+            price: Number(price),
             menuActive: 1
         }
-        this.props.create(menu)
-        this.reset()
-    }
-
-    handleUpdateMenu = (menuId)=>{
-        let menu = {
-            jenis: {
-                categoryId : this.state.category
-            },
-            menuName: this.state.menuName,
-            stock: Number(this.state.stock),
-            price: Number(this.state.price),
-            menuActive: 1
-        }
-        this.props.update(menuId,menu)
-        this.reset()
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if ((prevProps.editedData !== this.props.editedData) && Object.keys(this.props.editedData).length!==0){
-            this.setState({
-                ...this.state,
-                category : this.props.editedData.jenis.categoryId,
-                menuName : this.props.editedData.menuName,
-                stock : this.props.editedData.stock,
-                price : this.props.editedData.price,
-            })
-        }else if ((Object.keys(prevProps.editedData).length !== 0) && Object.keys(this.props.editedData).length===0){
-            document.getElementById("form").reset();
-            this.reset()
-        }
-    }
-
-    render() {
-        const {formType,editedData,show,hide,category} = this.props
-        let methodClick,disable
-        if (formType === "Edit"){
-            disable = false
-            methodClick = ()=>this.handleUpdateMenu(editedData.menuId)
-        }else if (formType === "Create"){
-            disable = false
-            methodClick = ()=>this.handleCreateMenu()
+        if (formType === "Create"){
+            props.create(menu)
         }else{
-            disable = true
+            props.update(id,menu)
         }
-        return (
-            <Modal show={show}>
-                <Modal.Header>
-                    <Modal.Title>{formType} Menu</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form id="form">
-                        <Form.Group>
-                            <Form.Label>Category</Form.Label>
-                            <Form.Control disabled={disable} name="category" as="select" size="md" value={this.state.category} onChange={this.handleChangeInput}>
-                                <option>-- Select Category --</option>
-                                {category.map((val)=>{
-                                    return (<option value={val.categoryId}>{val.categoryName}</option>)
-                                })}
-                            </Form.Control>
-                        </Form.Group>
-
-
-                        <InputComponent
-                            inputType={"text"}
-                            inputName={"menuName"}
-                            inputLabel={"Name"}
-                            value={this.state.menuName}
-                            disable = {disable}
-                            inputPlaceholder={"Enter Name"}
-                            onChange={this.handleChangeInput}
-                        />
-                        <InputComponent
-                            inputType={"Number"}
-                            inputName={"stock"}
-                            inputLabel={"Stock"}
-                            value={this.state.stock}
-                            disable = {disable}
-                            inputPlaceholder={"Enter Stock"}
-                            onChange={this.handleChangeInput}
-                        />
-                        <InputComponent
-                            inputType={"Number"}
-                            inputName={"price"}
-                            inputLabel={"Price"}
-                            value={this.state.price}
-                            disable = {disable}
-                            inputPlaceholder={"Enter Price"}
-                            onChange={this.handleChangeInput}
-                        />
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    {formType === "Detail" ? "" : <ButtonComponent btnLabel={formType} validation={this.validationForm()} click={methodClick}/>}
-                    <Button variant="primary" onClick={hide}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        reset()
     }
-}
+
+    const prevEditedData = usePrevious({editedData});
+    useEffect(() => {
+        if(prevEditedData !== editedData && Object.keys(editedData).length!==0) {
+            setCategory(editedData.jenis.categoryId)
+            setMenuName(editedData.menuName)
+            setStock(editedData.stock)
+            setPrice(editedData.price)
+        }else {
+            reset()
+        }
+    }, [editedData])
+
+
+    return (
+        <Modal show={show}>
+            <Modal.Header>
+                <Modal.Title>{formType} Menu</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form id="form">
+                    <Form.Group>
+                        <Form.Label>Category</Form.Label>
+                        <Form.Control disabled={formType === "Detail"}
+                                      name="setCategory" as="select"
+                                      size="md"
+                                      value={categories}
+                                      onChange={e => setCategory(e.target.value)}>
+                            <option>-- Select Category --</option>
+                            {category.map((val)=>{
+                                return (<option value={val.categoryId}>{val.categoryName}</option>)
+                            })}
+                        </Form.Control>
+                    </Form.Group>
+
+
+                    <InputComponent
+                        inputType={"text"}
+                        inputName={"setMenuName"}
+                        inputLabel={"Name"}
+                        value={menuName}
+                        disable = {formType === "Detail"}
+                        inputPlaceholder={"Enter Name"}
+                        onChange={e => setMenuName(e.target.value)}
+                    />
+                    <InputComponent
+                        inputType={"Number"}
+                        inputName={"setStock"}
+                        inputLabel={"Stock"}
+                        value={stock}
+                        disable = {formType === "Detail"}
+                        inputPlaceholder={"Enter Stock"}
+                        onChange={e => setStock(e.target.value)}
+                    />
+                    <InputComponent
+                        inputType={"Number"}
+                        inputName={"setPrice"}
+                        inputLabel={"Price"}
+                        value={price}
+                        disable = {formType === "Detail"}
+                        inputPlaceholder={"Enter Price"}
+                        onChange={e => setPrice(e.target.value)}
+                    />
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                {formType === "Detail" ? "" : <ButtonComponent btnLabel={formType} validation={validationForm()} click={()=>handleSubmit(formType,editedData.menuId)}/>}
+                <Button variant="primary" onClick={hide}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+};
 
 const getCategory = (state)=>{
     return{
@@ -152,3 +129,4 @@ const getCategory = (state)=>{
 }
 
 export default connect(getCategory,null)(MenuForm);
+

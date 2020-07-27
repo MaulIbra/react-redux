@@ -1,9 +1,9 @@
-import menu from "./MenuReducer";
 import {combineReducers} from "redux";
+import menuTodo from "./MenuReducer";
 
 
 const menuReducer = combineReducers({
-    menu
+    menuTodo
 })
 
 export default menuReducer

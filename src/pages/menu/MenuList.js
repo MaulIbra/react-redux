@@ -59,7 +59,7 @@ class MenuList extends Component {
 
 const mapStateToProps = (state)=>{
     return{
-        menu : state.menuReducer.menu.menu
+        menu : state.menuReducer.menuTodo.menu
     }
 }
 

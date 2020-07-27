@@ -11,7 +11,6 @@ class HeaderComponent extends Component {
     }
 
     render() {
-        console.log(this.props.history)
         return (
 
             <Navbar className="bg-white shadow-sm p-3">
