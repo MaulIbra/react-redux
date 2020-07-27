@@ -1,21 +1,19 @@
-import React, {Component} from 'react';
 import LoginForm from "./LoginForm";
+import React from 'react';
 
-class Login extends Component {
+const Login = (props) => {
 
-    onLogin = ()=>{
-        this.props.onLogin()
+    const onLogin = ()=>{
+        props.onLogin()
     }
 
-    render() {
-        return (
-            <div className="login-pages">
-                <div className="login-form">
-                    <LoginForm onLogin={()=>this.onLogin()}/>
-                </div>
+    return (
+        <div className="login-pages">
+            <div className="login-form">
+                <LoginForm onLogin={()=>onLogin()}/>
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
 
 export default Login;
