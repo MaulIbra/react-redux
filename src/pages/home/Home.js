@@ -21,7 +21,7 @@ const Home = (props) => {
             }).then((result)=>{
                 if (result.value) {
                     sessionStorage.clear()
-                    this.props.history.push('/')
+                    props.history.push('/')
                 }
             })
         })

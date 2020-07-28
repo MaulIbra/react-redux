@@ -209,7 +209,7 @@ const MenuContainer = (props) => {
                 <div className="container-list">
                     <MenuList
                         edited={(value)=>showModals("Edit",value)}
-                        delete={(idMenu)=>deleteData(idMenu)}
+                        deleted={(idMenu)=>deleteData(idMenu)}
                         showDetail = {(value)=>showModals("Detail",value)}
                     />
                 </div>
