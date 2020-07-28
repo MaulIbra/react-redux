@@ -5,12 +5,13 @@ import Swal from "sweetalert2";
 import {getCategory} from "../category/CategoryService";
 import {withRouter} from "react-router-dom";
 import {connect} from "react-redux";
+import {setListCategory} from "../../actions/Category";
 
 class Home extends Component {
 
     loadCategory = ()=>{
         getCategory(sessionStorage.getItem('token')).then((result)=>{
-            this.props.setCategory(result.data)
+            this.props.setListCategory(result.data)
         }).catch((err)=>{
             Swal.fire({
                 icon: 'error',
@@ -44,15 +45,8 @@ class Home extends Component {
     }
 }
 
-const mapDispatchToProps = (dispatch) =>{
-    return {
-        setCategory : (val) => dispatch(
-            {
-                type : 'SET_CATEGORY',
-                payload : val
-            }
-        )
-    }
+const mapDispatchToProps = {
+    setListCategory : setListCategory
 }
 
 

@@ -10,6 +10,7 @@ import {connect} from "react-redux";
 import Swal from "sweetalert2";
 import {showAlert} from "../../component/AlertComponent";
 import {withRouter} from "react-router-dom";
+import {setListMenu} from "../../actions/Menu";
 
 class MenuContainer extends Component {
     constructor(props) {
@@ -40,7 +41,7 @@ class MenuContainer extends Component {
                 isVisible : false,
                 token : sessionStorage.getItem('token')
             })
-            this.props.set(result.data)
+            this.props.setListMenu(result.data)
         }).catch((err)=>{
             Swal.fire({
                 icon: 'error',
@@ -252,15 +253,8 @@ class MenuContainer extends Component {
 }
 
 
-const mapDispatchToProps = (dispatch) =>{
-    return {
-        set : (val) => dispatch(
-            {
-                type : 'SET_MENU',
-                payload : val
-            }
-        )
-    }
+const mapDispatchToProps = {
+    setListMenu : setListMenu
 }
 
 export default connect(null,mapDispatchToProps)(withRouter(MenuContainer));
