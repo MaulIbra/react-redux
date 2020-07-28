@@ -10,7 +10,7 @@ import {connect} from "react-redux";
 import Swal from "sweetalert2";
 import {showAlert} from "../../component/AlertComponent";
 import {withRouter} from "react-router-dom";
-import {setListMenu} from "../../actions/Menu";
+import {setListMenu} from "../../redux/actions/Menu";
 
 class MenuContainer extends Component {
     constructor(props) {

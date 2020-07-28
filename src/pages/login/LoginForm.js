@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+import React from 'react'
+import {useState} from 'react';
 import {Card,Form} from "react-bootstrap";
 import InputComponent from "../../component/InputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
@@ -8,54 +9,53 @@ import {login} from "./LoginService";
 import {LoadingComponent} from "../../component/LodingComponent";
 import Swal from "sweetalert2";
 
-class LoginForm extends Component {
+const LoginForm = (props) => {
 
-    constructor(props) {
-        super(props);
-        this.state={
-            email:"",
-            password:"",
-            error:""
-        }
+    const [userInput,setUserInput] = useState({
+        email : "",
+        password : "",
+        error : "",
+    })
+
+    const handleChangeInput = (name,val)=>{
+        setUserInput({
+            ...userInput,
+            [name] : val
+        })
     }
 
-    handleChangeInput = (event) =>{
-        const name = event.target.name
-        this.setState({...this.state, [name] : event.target.value})
+    const validationForm = ()=>{
+        return (userInput.email !== "" && userInput.password !== "" && validationEmail(userInput.email) === true)
     }
 
-    validationEmail = (email)=>{
+    const validationEmail = (email)=>{
         // eslint-disable-next-line
         const regexEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return regexEmail.test(String(email).toLowerCase());
     }
 
-    validationForm = ()=>{
-        return (this.state.email !== "" && this.state.password !== "" && this.validationEmail(this.state.email) === true)
-    }
-
-    handleLogin = ()=>{
+    const handleLogin = ()=>{
         let user = {
-            username : this.state.email,
-            password: this.state.password
+            username : userInput.email,
+            password: userInput.password
         }
         LoadingComponent()
         Swal.showLoading()
         login(user).then((result)=>{
             if (result.data.data === undefined){
                 Swal.close()
-                this.setState({
-                    ...this.state,
-                    error : result.data.message
+                setUserInput({
+                    ...userInput,
+                    error: result.data.message
                 })
             }else{
                 Swal.close()
-                this.setState({
-                    ...this.state,
-                    error : ""
+                setUserInput({
+                    ...userInput,
+                    error: ""
                 })
                 sessionStorage.setItem('token', result.data.data.authentication.token)
-                this.props.onLogin()
+                props.onLogin()
             }
         }).catch((err)=>{
             Swal.close()
@@ -64,43 +64,40 @@ class LoginForm extends Component {
         })
     }
 
-    render() {
-        return (
-            <Card className="shadow-lg bg-white rounded-sm card-style">
-                <div className="header-card">
-                    <img src={loginIcon} alt=""/>
-                    Login Page
-                </div>
-                <Card.Body className="p-4">
-                    <Form>
-                        <InputComponent
-                            inputType={"email"}
-                            inputName={"email"}
-                            inputLabel={"Email Adress"}
-                            inputPlaceholder={"Enter Email"}
-                            onChange={this.handleChangeInput}
-                            isValidEmail={this.validationEmail(this.state.email)}
-                            currentState={this.state.email}
-                        />
-                        <InputComponent
-                            inputType={"password"}
-                            inputName={"password"}
-                            inputLabel={"Password"}
-                            inputPlaceholder={"Enter password"}
-                            onChange={this.handleChangeInput}
-                        />
-                        <div className="container-error">
-                            <small className="text-danger">{this.state.error === ""?"":this.state.error}</small>
-                        </div>
-                        <div className="container-button">
-                            <ButtonComponent btnLabel={"Login"} validation={this.validationForm()} click={this.handleLogin}/>
-                        </div>
-                    </Form>
-                </Card.Body>
-            </Card>
-        );
-    }
-}
-
+    return (
+        <Card className="shadow-lg bg-white rounded-sm card-style">
+            <div className="header-card">
+                <img src={loginIcon} alt=""/>
+                Login Page
+            </div>
+            <Card.Body className="p-4">
+                <Form>
+                    <InputComponent
+                        inputType={"email"}
+                        inputName={"email"}
+                        inputLabel={"Email Adress"}
+                        inputPlaceholder={"Enter Email"}
+                        onChange={e => {handleChangeInput("email",e.target.value)}}
+                        isValidEmail={validationEmail(userInput.email)}
+                        currentState={userInput.email}
+                    />
+                    <InputComponent
+                        inputType={"password"}
+                        inputName={"password"}
+                        inputLabel={"Password"}
+                        inputPlaceholder={"Enter password"}
+                        onChange={e => {handleChangeInput("password",e.target.value)}}
+                    />
+                    <div className="container-error">
+                        <small className="text-danger">{userInput.error === ""?"":userInput.error}</small>
+                    </div>
+                    <div className="container-button">
+                        <ButtonComponent btnLabel={"Login"} validation={validationForm()} click={()=>handleLogin()}/>
+                    </div>
+                </Form>
+            </Card.Body>
+        </Card>
+    );
+};
 
 export default LoginForm;
