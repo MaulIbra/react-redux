@@ -12,6 +12,9 @@ import Swal from "sweetalert2";
 import {showAlert} from "../../component/AlertComponent";
 import {withRouter} from "react-router-dom";
 import {setListMenu} from "../../redux/actions/Menu";
+import {fromEvent, Subject} from "rxjs";
+import * as Rx from "rxjs";
+import {debounceTime, map} from "rxjs/operators";
 
 
 const MenuContainer = (props) => {
@@ -30,7 +33,22 @@ const MenuContainer = (props) => {
         lastPaging : 0,
     })
 
+
+    const handler = ()=>{
+        const searchBox = document.getElementById('search');
+        const keyup = fromEvent(searchBox, 'keyup');
+        keyup.pipe(
+                map((i) => i.target.value),
+                debounceTime(500)
+            ).subscribe(
+                x=>{
+                    setSearchData(x)
+                });
+    }
+
+
     useEffect(()=>{
+        console.log("call api")
         loadData()
         countData()
     },[customPagination.offset,searchData])
@@ -206,7 +224,7 @@ const MenuContainer = (props) => {
                         onClick={()=>showModals("Create")}>
                         <FontAwesomeIcon icon={faPlusCircle} className="mr-2"/>Add Menu
                     </Button>
-                    <input className="table-bordered search-keyword" placeholder="Search..." type="text" value={searchData} onChange={e=>{setSearchData(e.target.value)}}/>
+                    <input className="table-bordered search-keyword" onChange={()=>handler()} id="search"  placeholder="Search..." type="text" />
                 </div>
                 <div className="container-list">
                     <MenuList
