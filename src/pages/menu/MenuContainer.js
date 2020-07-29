@@ -20,6 +20,7 @@ const MenuContainer = (props) => {
     const [formType,setFormType] = useState("")
     const [token,setToken] = useState("")
     const [selectedData,setSelectedData] = useState({})
+    const [searchData,setSearchData] = useState("")
     const [customPagination,setCustomPagination] = useState({
         totalData : 0,
         offset : 0,
@@ -32,10 +33,10 @@ const MenuContainer = (props) => {
     useEffect(()=>{
         loadData()
         countData()
-    },[customPagination.offset])
+    },[customPagination.offset,searchData])
 
     const loadData = ()=>{
-        getMenu(customPagination.offset,customPagination.rowPerPage,sessionStorage.getItem('token')).then((result)=>{
+        getMenu(customPagination.offset,customPagination.rowPerPage,searchData,sessionStorage.getItem('token')).then((result)=>{
             setToken(sessionStorage.getItem('token'))
             props.setListMenu(result.data)
         }).catch((err)=>{
@@ -53,7 +54,7 @@ const MenuContainer = (props) => {
     }
 
     const countData = ()=>{
-        getCountMenu(sessionStorage.getItem('token')).then((result)=>{
+        getCountMenu(searchData,sessionStorage.getItem('token')).then((result)=>{
             setCustomPagination({
                 ...customPagination,
                 totalData: result.data,
@@ -107,7 +108,7 @@ const MenuContainer = (props) => {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.value) {
-                deleteMenu(idMenu,this.state.token).then((response)=>{
+                deleteMenu(idMenu,token).then((response)=>{
                     if (response.status === 200){
                         Swal.fire(
                             'Deleted!',
@@ -205,6 +206,7 @@ const MenuContainer = (props) => {
                         onClick={()=>showModals("Create")}>
                         <FontAwesomeIcon icon={faPlusCircle} className="mr-2"/>Add Menu
                     </Button>
+                    <input className="table-bordered search-keyword" placeholder="Search..." type="text" value={searchData} onChange={e=>{setSearchData(e.target.value)}}/>
                 </div>
                 <div className="container-list">
                     <MenuList

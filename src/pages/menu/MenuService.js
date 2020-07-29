@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-const getMenu = async function(offset,lengthRow,token) {
+const getMenu = async function(offset,lengthRow,searchData,token) {
+    let pathSearch = searchData === "" ? "/%20" : "/"+searchData
     let response = await axios.get(
-        '/menu/'+offset+"/"+lengthRow,
+        '/menu/'+offset+"/"+lengthRow+pathSearch,
         {
             headers: {
                 'token' : token,
@@ -13,9 +14,10 @@ const getMenu = async function(offset,lengthRow,token) {
     return response.data
 }
 
-const getCountMenu = async function(token){
+const getCountMenu = async function(searchData,token){
+    let pathSearch = searchData === "" ? "/%20" : "/"+searchData
     let response = await axios.get(
-        '/menu/count',
+        '/menu/count'+pathSearch,
         {
             headers: {
                 'token' : token,
